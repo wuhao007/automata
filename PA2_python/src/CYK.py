@@ -37,21 +37,10 @@ def calcCYK(w):
     L=len(w)
     X=[[[False]*VarNum for i in range(L)] for j in range(L)]
     #Fill in your program here
-    for position_index, symbol_index in enumerate(w):
-        #print position_index, symbol_index
-        for var in range(VarNum):
-            if existProd(var, symbol_index, -1):
-                X[position_index][position_index][var] = True
 
-    for diag in range(1, L):
-        for i in range(L - diag):
-            j = diag + i
-            for k in range(diag):
-                for producer in range(VarNum):
-                    for var in range(VarNum):
-                        for var2 in range(VarNum):
-                            if X[i][j + k - diag][var] and X[i + k + 1][j][var2]:
-                                X[i][j][producer] = X[i][j][producer] or existProd(producer, var, var2)
+
+
+   
 
 def Start( filename):
     global X
