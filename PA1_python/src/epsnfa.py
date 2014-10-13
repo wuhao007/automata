@@ -5,6 +5,8 @@ import string
 maxn = 200 #maximum number of states
 symbol = 2 #number of symbols ('0','1')
 epssymbol = 2
+EPSILON = u"\u03B5"
+symbols = (u'0', u'1', EPSILON)
 
 '''g[s1][i][s2]=True if and only if there's an edge with symbol i from state s1 to s2
    i: 0 is '0', 1 is '1', 2 is epsilon
@@ -14,6 +16,30 @@ epssymbol = 2
   the string not accepted.'''
 
 g = [[[False] * maxn for i in range(symbol+1)] for j in range(maxn)]
+
+class Graph(list):
+    def __init__(self, *args):
+        self.N = 0
+        self.M = 0
+        self.symbols = []  # ('0', '1', '<Epsilon>')
+        if args and args[0] and args[0][0] and args[0][0][0]:
+            self.N = max(len(args), len(args[0][0]))  # maxn = 200  # maximum number of states
+            self.M = max(len(args[s1]) for s1 in range(self.N))  # symbol = 2  # number of symbols ('0','1')
+            if self.M < 11:
+                self.symbols = [chr(ord[u'0'] + sym for sym in range(self.M - 1))] + [EPSILON]
+            elif self.M < 27:
+                self.symbols = [chr(ord[u'a'] + sym for sym in range(self.M - 1))] + [EPSILON]
+        super(Graph, self)(*args)
+
+    epssymbol = 2
+
+    def __repr__(self):
+        # display the symbols as part of the graph
+        return repr(list(self))
+
+    def svg(self):
+        # FIXME: compose an SVG string (using d3?)
+        return repr(list(self))
 
 ''' closure[s1][s2] is True if and only if s2 is in CL(s1)'''
 closure = [[False]*maxn for i in range(maxn)]
@@ -45,28 +71,48 @@ def incCapacity():
 #unite two Epsilon-NFAs, with start state s1 and s2, final state t1 and t2, respectively
 #return an array of length 2, where the first element is the start state of the combined NFA. the second being the final state 
 def union(s1,t1,s2,t2):
-    st=[0]*2
+    #st=[0]*2
 
     #Please fill in the program here
-
+    global g
+    new_start = incCapacity()
+    addEdge(new_start, symbol, s1)
+    addEdge(new_start, symbol, s2)
+    new_end = incCapacity()
+    addEdge(t1, symbol, new_end)
+    addEdge(t2, symbol, new_end)
+    return [new_start, new_end]
   
-    return st
+    #return st
 
 #concatenation of two Epsilon-NFAs, with start state s1 and s2, final state t1 and t2, respectively
 #return an array of length 2, where the first element is the start state of the combined NFA. the second being the final state 
 def concat(s1,t1,s2,t2):
-    st=[0]*2
+    #st=[0]*2
     #Please fill in the program here
+    global g
+    addEdge(t1, symbol, s2)
+    return [s1, t2]
 
-    return st
+    #return st
 
 #Closure of a Epsilon-NFA, with start state s and final state t
 #return an array of length 2, where the first element is the start state of the closure Epsilon-NFA. the second being the final state 
 def clo(s,t):
-    st=[0]*2
+    #st=[0]*2
     #Please fill in the program here
+    global g
+    new_start = incCapacity()
+    addEdge(new_start, symbol, s)
+    new_end = incCapacity()
+    addEdge(t, symbol, new_end)
+    # reverse
+    addEdge(t, symbol, s)
+    # bypass
+    addEdge(new_start, symbol, new_end)
+    return [new_start, new_end]
 
-    return st
+    #return st
     
 #Calculate the closure: CL()
 def calc_closure():
